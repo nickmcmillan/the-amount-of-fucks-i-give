@@ -1,0 +1,76 @@
+/* ==========================================================================
+   Mixins
+   ========================================================================== */
+
+// Convert px to em
+$browser-context: $base-font-size; // Default
+ 
+@function em($pixels, $context: $browser-context) {
+  @return #{$pixels/$context}em
+}
+
+// Convert pixel values to rem values for whatever property is passed to it, e.g.: 
+
+/* Baseline, measured in pixels
+ * The value should be the same as the font-size value for the html element
+ * If the html element's font-size is set to 62.5% (of the browser's default font-size of 16px),
+ * then the variable below would be 10px.
+ */
+$baseline-px: $base-font-size;
+
+@mixin rem($property, $px-values) {
+  // Convert the baseline into rems
+  $baseline-rem: $baseline-px / 1rem;
+  // Print the first line in pixel values
+  #{$property}: $px-values;
+  // If there is only one (numeric) value, return the property/value line for it.
+  @if type-of($px-values) == "number" {
+    #{$property}: $px-values / $baseline-rem; }
+  @else {
+    // Create an empty list that we can dump values into
+    $rem-values: unquote("");
+    @each $value in $px-values {
+      // If the value is zero, return 0
+      @if $value == 0 {
+        $rem-values: append($rem-values, $value); }
+      @else {
+        $rem-values: append($rem-values, $value / $baseline-rem); } }
+    // Return the property and its list of converted values
+    #{$property}: $rem-values; } 
+}
+
+@mixin retina-sprite($original, $retina) {
+  @include sprite($original);
+
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dppx) { 
+    // keep most of the settings from the original
+    // just switch out the img and halve size & position
+    @include sprite-image($retina);      
+    background-position: nth($retina, 3)/2 nth($retina, 4)/2;
+    background-size: nth($retina, 7)/2 nth($retina, 8)/2;
+  }
+}
+
+
+@mixin opacity($opacity) {
+  opacity: $opacity;
+  $opacity-ie: $opacity * 100;
+  filter: alpha(opacity=$opacity-ie); //IE8
+}
+
+@mixin transition($transition-property, $transition-time, $method) {
+    -webkit-transition: $transition-property $transition-time $method;
+    -moz-transition: $transition-property $transition-time $method;
+    -ms-transition: $transition-property $transition-time $method;
+    -o-transition: $transition-property $transition-time $method;
+    transition: $transition-property $transition-time $method;
+}
+
+@mixin linear-gradient($top, $bottom){
+    background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,$top), color-stop(100%,$bottom)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(to right,  $top 0%,$bottom 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(to right,  $top 0%,$bottom 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(to right,  $top 0%,$bottom 100%); /* IE10+ */
+    background: linear-gradient(to right,  $top 0%,$bottom 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#000000',GradientType=1 ); /* IE6-9 */
+}
