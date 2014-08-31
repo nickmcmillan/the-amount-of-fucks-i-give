@@ -170,8 +170,7 @@ app = (function() {
 
       // Time to start adding the event listeners
       
-      function handleMovement(e) {
-        e.preventDefault();
+      function handleMovement() {
 
         var touchPosition = stage.getPointerPosition(),
             x1 = touchPosition.x - wheel.x(),
@@ -196,11 +195,11 @@ app = (function() {
 
 
       wheel.on('mousedown touchstart', function(e) {
-        e.preventDefault();
+        //e.evt.preventDefault();
         
         angularVelocity = 0;
         controlled = true;
-        target = e.targetNode;
+        target = e.target;
         startRotation = this.rotation();
         
         var touchPosition = stage.getPointerPosition();
@@ -216,9 +215,7 @@ app = (function() {
       });
       
 
-      function releaseTheWheel(e) {
-
-        e.preventDefault();
+      function releaseTheWheel() {
         
         controlled = false;
 
