@@ -1,8 +1,6 @@
-
-$(function() {
+window.onload = function() {
     'use strict';
 
-	app.pubMaps.wheel();
+	app.wheel();
 	
-
-});
+};

@@ -1,94 +1,90 @@
 var app = app || {};
 
-
-app.pubMaps = (function() {
+app = (function() {
   'use strict';
-
+  
   var wheel = function() {
 
-    // lots of shit to clean up here.
+    // set up all our vars which are shared across functions
 
+    var containerEl = document.getElementById('container'),
 
-    var foodPlaces = ['pub', 'strippers', 'dogs', 'birmy', 'meatballs', 'katsu', 'bag of dicks', 'megashnitzel', 'alexs mums house'];
-    var foodPlacesIncrement = 0;
+    wedgeColors = [
+      '#2980B9', // dark blue
+      '#2ecc71', // green
+      '#3498db', // blue
+      '#34495e', // metal blue
+      '#f1c40f', // yellow
+      '#e74c3c', // red
+      '#16A085', // fern
+      //'#95a5a6',  // grey
+      '#34495E', // wet ashpalt
+      '#C0392B', // pomegranate
+      '#e98b39' // orange
+    ],
 
-    var wedgeColors = ['#334d5c', '#45b29d', '#efc94c', '#e27a3f', '#df5a49', '#334d5c', '#45b29d', '#efc94c', '#e27a3f', '#df5a49'];
-    var wedgeColorsIncrement = 0;
+    numOfWedges = 10,
+    wheelRadius = 230,
+    maxAngularVelocity = 360 * 1.5,
+    angularFriction = 0.75,
+    angularVelocity = 360,
+    lastRotation = 0,
+    controlled = false, // set true for no autospin
 
-
-    var NUM_WEDGES = foodPlaces.length;
-    var WHEEL_RADIUS = 250;
-    
-    var MAX_ANGULAR_VELOCITY = 360 * 1.5;
-    var ANGULAR_FRICTION = 0.75;
-
-    // globals
-    var angularVelocity = 360;
-    var lastRotation = 0;
-    var controlled = true;
-    var target, 
-        activeWedge,
-        stage,
-        layer,
-        wheel,
-        pointer,
-        pointerTween,
-        startRotation,
-        startX,
-        startY;
+    target,
+    activeWedge,
+    stage,
+    layer,
+    wheel,
+    pointer,
+    pointerTween,
+    startRotation,
+    startX,
+    startY;
 
     function addWedge(n) {
       
-      var wedgeTitle = foodPlaces[foodPlacesIncrement];
-      foodPlacesIncrement++;
-      
-      var angle = 360 / NUM_WEDGES;
-
-      
+      var angle = 360 / numOfWedges;
 
       var wedge = new Kinetic.Group({
-        rotation: n * 360 / NUM_WEDGES,
+        rotation: n * 360 / numOfWedges,
       });
-      
 
       var wedgeBackground = new Kinetic.Wedge({
-        radius: WHEEL_RADIUS,
+        radius: wheelRadius,
         angle: angle,
-        fill: wedgeColors[wedgeColorsIncrement],
-        stroke: '#fff',
-        strokeWidth: 2,
+        fill: wedgeColors[Math.round(Math.random() * (wedgeColors.length - 1))],
+        //stroke: '#fff',
+        //strokeWidth: 2,
         rotation: (90 + angle/2) * -1
       });
-
-      wedgeColorsIncrement++;
 
       wedge.add(wedgeBackground);
 
       var text = new Kinetic.Text({
-        text: wedgeTitle,
-        //fontFamily: 'Calibri',
-        fontSize: 20,
+        text: '0',
+        fontFamily: 'Fredoka One',
+        fontSize: 30,
         fill: '#fff',
-        //align: 'center',
-        //stroke: 'yellow',
-        //strokeWidth: 1,
+        align: 'center',
+        //stroke: '#fff',
+        //strokeWidth: 2,
+        opacity: 0.95,
         listening: false
 
       });
       
       text.offsetX(text.width()/2);
-      text.offsetY(WHEEL_RADIUS - 15);
+      text.offsetY(wheelRadius - 15);
       
       wedge.add(text);
       wheel.add(wedge);
 
     }
 
-    var activeWedge;
-
     function animate(frame) {
       // wheel
-      var angularVelocityChange = angularVelocity * frame.timeDiff * (1 - ANGULAR_FRICTION) / 1000;
+      var angularVelocityChange = angularVelocity * frame.timeDiff * (1 - angularFriction) / 1000;
       angularVelocity -= angularVelocityChange;
 
       if(controlled) {
@@ -110,41 +106,39 @@ app.pubMaps = (function() {
         pointerTween.play();
         activeWedge = intersectedWedge; 
         
-       $('#winner').text(activeWedge.parent.children[1].partialText);
+       //$('#winner').text(activeWedge.parent.children[1].partialText);
 
       }
-
     }
 
     function init() {
       stage = new Kinetic.Stage({
         container: 'container',
-        width: WHEEL_RADIUS * 2.5,
-        height: WHEEL_RADIUS * 2.5
+        width: wheelRadius * 2,
+        height: wheelRadius * 2 + 20 // plus 20 is for the pointer
       });
       layer = new Kinetic.Layer();
       wheel = new Kinetic.Group({
-        x: stage.getWidth() / 2,
-        y: WHEEL_RADIUS + 20
+        x: stage.getWidth() / 2 ,
+        y: wheelRadius + 20
       });
 
-      for(var n = 0; n < NUM_WEDGES; n++) {
+      for (var n = 0; n < numOfWedges; n++) {
         addWedge(n);
       }
       
       pointer = new Kinetic.Wedge({
-        stroke: '#777',
-        fill: '#efefef',
-        strokeWidth: 1,
-        //lineJoin: 'round',
-        angle: 30,
-        radius: 30,
+        fill: '#dedede',
+        //stroke: '#fff',
+        //strokeWidth: 0,
+        lineJoin: 'round',
+        angle: 35,
+        radius: 20,
         x: stage.getWidth() / 2,
-        y: 20,
+        y: 22,
         rotation: -105
       });
 
-      
       // add components to the stage
       layer.add(wheel);
       layer.add(pointer);
@@ -159,9 +153,9 @@ app.pubMaps = (function() {
       
       pointerTween.finish();
       
-      var radiusPlus2 = WHEEL_RADIUS + 2;
+      var radiusPlus2 = wheelRadius + 2;
       
-      wheel.cache({
+      /*wheel.cache({
         x: -1* radiusPlus2,
         y: -1* radiusPlus2,
         width: radiusPlus2 * 2,
@@ -169,11 +163,38 @@ app.pubMaps = (function() {
       }).offset({
         x: radiusPlus2,
         y: radiusPlus2
-      });
+      });*/
       
       layer.draw();
 
-      // bind events
+
+      // Time to start adding the event listeners
+      
+      function handleMovement(e) {
+        e.preventDefault();
+
+        var touchPosition = stage.getPointerPosition(),
+            x1 = touchPosition.x - wheel.x(),
+            y1 = touchPosition.y - wheel.y();         
+      
+        if (controlled && target) {
+
+          var x2 = startX - wheel.x(),
+              y2 = startY - wheel.y(),
+              angle1 = Math.atan(y1 / x1) * 180 / Math.PI,
+              angle2 = Math.atan(y2 / x2) * 180 / Math.PI,
+              angleDiff = angle2 - angle1;
+          
+          if ((x1 < 0 && x2 >=0) || (x2 < 0 && x1 >=0)) {
+            angleDiff += 180;
+          }
+
+          wheel.setRotation(startRotation - angleDiff);
+
+        }
+      };
+
+
       wheel.on('mousedown touchstart', function(e) {
         e.preventDefault();
         
@@ -181,86 +202,55 @@ app.pubMaps = (function() {
         controlled = true;
         target = e.targetNode;
         startRotation = this.rotation();
+        
+        var touchPosition = stage.getPointerPosition();
 
+        startX = touchPosition.x;
+        startY = touchPosition.y;
 
-        if (e.type === 'touchstart') {
+        // only track the movement if the mouse/finger is down
 
-          startX = e.targetTouches[0].pageX;
-          startY = e.targetTouches[0].pageY;
-
-        } else {
-
-          startX = e.pageX;
-          startY = e.pageY;
-
-        }
+        document.addEventListener('mousemove', handleMovement );
+        document.addEventListener('touchmove', handleMovement );
         
       });
       
-      
-      // add listeners to container
-      $(document).on('mouseup touchend', function(e) {
-        
+
+      function releaseTheWheel(e) {
+
         e.preventDefault();
         
         controlled = false;
 
-        if (angularVelocity > MAX_ANGULAR_VELOCITY) {
-          angularVelocity = MAX_ANGULAR_VELOCITY;
+        if (angularVelocity > maxAngularVelocity) {
+          angularVelocity = maxAngularVelocity;
 
-        } else if (angularVelocity < -1 * MAX_ANGULAR_VELOCITY) {
-          angularVelocity = -1 * MAX_ANGULAR_VELOCITY;
+        } else if (angularVelocity < -1 * maxAngularVelocity) {
+          angularVelocity = -1 * maxAngularVelocity;
         }
 
-        //angularVelocities = [];
+        // REMOVE event listeners once the wheel has been released, otherwise console errors
 
-      });
+        document.removeEventListener('mousemove', handleMovement );
+        document.removeEventListener('touchmove', handleMovement );
 
+      };
 
-
-
-      $(document).on('mousemove touchmove', function(e) {
-        e.preventDefault();
-
-        
-        if (e.type === 'touchmove') {
-          
-          var x1 = e.originalEvent.changedTouches[0].pageX - wheel.x();
-          var y1 = e.originalEvent.changedTouches[0].pageY - wheel.y();
-
-        } else {
-          var x1 = e.pageX - wheel.x();
-          var y1 = e.pageY - wheel.y();
-            
-        }
-
-
-        if (controlled && target) {
-          var x2 = startX - wheel.x();
-          var y2 = startY - wheel.y();
-          var angle1 = Math.atan(y1 / x1) * 180 / Math.PI;
-          var angle2 = Math.atan(y2 / x2) * 180 / Math.PI;
-          var angleDiff = angle2 - angle1;
-          
-          if ((x1 < 0 && x2 >=0) || (x2 < 0 && x1 >=0)) {
-            angleDiff += 180;
-          }
-
-          wheel.setRotation(startRotation - angleDiff);
-        }
-      });
+      document.addEventListener('mouseup', releaseTheWheel );
+      document.addEventListener('touchend', releaseTheWheel );
+      
 
       var anim = new Kinetic.Animation(animate, layer);
       //document.getElementById('debug').appendChild(layer.hitCanvas._canvas);
 
       anim.start();
-
+  
     }
 
     init();
-
+    containerEl.className = 'visible';
+    
   }
-
 
   return {
     wheel: wheel
