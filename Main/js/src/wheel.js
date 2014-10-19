@@ -42,6 +42,31 @@ app = (function() {
     startX,
     startY;
 
+
+    // used for randomizing the colour array
+    // Fisher-Yates (aka Knuth) Shuffle
+    function shuffle(array) {
+      var currentIndex = array.length, temporaryValue, randomIndex ;
+
+      // While there remain elements to shuffle...
+      while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+      }
+
+      return array;
+    }
+
+    // now we shuffle the color array
+    shuffle( wedgeColors );
+
     function addWedge(n) {
       
       var angle = 360 / numOfWedges;
@@ -50,10 +75,11 @@ app = (function() {
         rotation: n * 360 / numOfWedges,
       });
 
+
       var wedgeBackground = new Kinetic.Wedge({
         radius: wheelRadius,
         angle: angle,
-        fill: wedgeColors[Math.round(Math.random() * (wedgeColors.length - 1))],
+        fill: wedgeColors.pop(),
         //stroke: '#fff',
         //strokeWidth: 2,
         rotation: (90 + angle/2) * -1
