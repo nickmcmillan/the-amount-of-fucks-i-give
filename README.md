@@ -1,8 +1,6 @@
 The amount of fucks I give
 =========
 
->[theamountoffucksigive.com]
-
 - Created using [KineticJS]. 
 - Based on a tutorial which can be found [here].
 - Supports mouse and touch.
